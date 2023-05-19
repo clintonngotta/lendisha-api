@@ -30,6 +30,7 @@ const getSingleByID = (req, res) => {
 			if (err) {
 				sendResponse(res, [], err.message, true, 500);
 			} else {
+				delete data[0].password;
 				sendResponse(res, data, "User retrieved successfully.");
 			}
 		}
@@ -59,12 +60,11 @@ const addNewUser = (req, res) => {
 						sendResponse(res, [], err.message, true, 500);
 					}
 				} else {
-					req.body.password = "";
+					delete req.body.password;
 					sendResponse(res, req.body, "User added successfully.");
 				}
 			}
 		);
-		req.body.password = hash;
 	});
 };
 
@@ -88,7 +88,12 @@ const updateUser = (req, res) => {
 				if (err) {
 					sendResponse(res, [], err.message, true, 500);
 				} else {
-					sendResponse(res, req.body, "User updated successfully.");
+					if (data.affectedRows > 0) {
+						delete req.body.password;
+						sendResponse(res, req.body, "User updated successfully.");
+					} else {
+						sendResponse(res, [], data.message, true, 500);
+					}
 				}
 			}
 		);
